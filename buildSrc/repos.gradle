@@ -63,7 +63,10 @@ def addMavenRepositories(RepositoryHandler handler) {
             }
         }
     }
-    if (System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
+    def allowPublicRepos = System.getenv("ALLOW_PUBLIC_REPOS") != null ||
+                           System.getProperty("ALLOW_PUBLIC_REPOS") != null ||
+                           !new File(repos.prebuiltsRoot).exists()
+    if (allowPublicRepos) {
         handler.mavenCentral()
         handler.google {
             content {

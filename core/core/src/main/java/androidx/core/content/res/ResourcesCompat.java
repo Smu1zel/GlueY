@@ -169,9 +169,14 @@ public final class ResourcesCompat {
      *                           not exist.
      */
     @ColorInt
+    @SuppressWarnings("deprecation")
     public static int getColor(@NonNull Resources res, @ColorRes int id, @Nullable Theme theme)
             throws NotFoundException {
-        return res.getColor(id, theme);
+        if (SDK_INT >= 23) {
+            return Api23Impl.getColor(res, id, theme);
+        } else {
+            return res.getColor(id);
+        }
     }
 
     /**
@@ -211,7 +216,11 @@ public final class ResourcesCompat {
             return csl;
         }
         // If we reach here then we couldn't inflate it, so let the framework handle it
-        return res.getColorStateList(id, theme);
+        if (SDK_INT >= 23) {
+            return Api23Impl.getColorStateList(res, id, theme);
+        } else {
+            return res.getColorStateList(id);
+        }
     }
 
     /**
@@ -706,6 +715,21 @@ public final class ResourcesCompat {
                     }
                 }
             }
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        static int getColor(Resources res, int id, Theme theme) {
+            return res.getColor(id, theme);
+        }
+
+        static ColorStateList getColorStateList(Resources res, int id, Theme theme) {
+            return res.getColorStateList(id, theme);
         }
     }
 }

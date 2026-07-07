@@ -8,7 +8,11 @@ pluginManagement {
         maven {
             url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/internal").getCanonicalFile()
         }
-        if (System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
+        def prebuiltsDir = new File(buildscript.sourceFile.parent + "/../../prebuilts").getCanonicalFile()
+        def allowPublicRepos = System.getenv("ALLOW_PUBLIC_REPOS") != null ||
+                               System.getProperty("ALLOW_PUBLIC_REPOS") != null ||
+                               !prebuiltsDir.exists()
+        if (allowPublicRepos) {
             mavenCentral()
             google()
             maven {

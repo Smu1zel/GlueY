@@ -424,8 +424,13 @@ public class ContextCompat {
      *         does not exist.
      */
     @ColorInt
+    @SuppressWarnings("deprecation")
     public static int getColor(@NonNull Context context, @ColorRes int id) {
-        return context.getColor(id);
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.getColor(context, id);
+        } else {
+            return context.getResources().getColor(id);
+        }
     }
 
     /**
@@ -920,6 +925,17 @@ public class ContextCompat {
         static Intent registerReceiver(Context obj, @Nullable BroadcastReceiver receiver,
                 IntentFilter filter, String broadcastPermission, Handler scheduler, int flags) {
             return obj.registerReceiver(receiver, filter, broadcastPermission, scheduler, flags);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        static int getColor(Context obj, int id) {
+            return obj.getColor(id);
         }
     }
 }

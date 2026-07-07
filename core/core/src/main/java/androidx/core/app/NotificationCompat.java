@@ -11240,14 +11240,19 @@ public class NotificationCompat {
                         ? Action.Builder.Api31Impl.isAuthenticationRequired(action)
                         : false;
 
-        if (action.getIcon() == null && action.icon != 0) {
+        IconCompat icon = null;
+        if (Build.VERSION.SDK_INT >= 23) {
+            Icon actionIcon = Api23Impl.getIcon(action);
+            if (actionIcon != null) {
+                icon = IconCompat.createFromIconOrNullIfZeroResId(actionIcon);
+            }
+        }
+        if (icon == null && action.icon != 0) {
             return new Action(action.icon, action.title, action.actionIntent,
                     action.getExtras(), remoteInputs, null,
                     allowGeneratedReplies, semanticAction, showsUserInterface, isContextual,
                     emphasisHint, styleHint, authRequired);
         }
-        IconCompat icon = action.getIcon() == null ? null
-                : IconCompat.createFromIconOrNullIfZeroResId(action.getIcon());
         return new Action(icon, action.title, action.actionIntent, action.getExtras(),
                 remoteInputs, null, allowGeneratedReplies, semanticAction,
                 showsUserInterface, isContextual, emphasisHint, styleHint, authRequired);
@@ -11712,5 +11717,14 @@ public class NotificationCompat {
             return notification.hasPromotableCharacteristics();
         }
 
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() { }
+
+        static Icon getIcon(Notification.Action action) {
+            return action.getIcon();
+        }
     }
 }

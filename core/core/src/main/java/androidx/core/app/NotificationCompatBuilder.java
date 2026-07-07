@@ -26,6 +26,7 @@ import static androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.LocusId;
 import android.graphics.drawable.Icon;
@@ -89,7 +90,12 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                         (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
                 .setNumber(b.mNumber)
                 .setProgress(b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
-        mBuilder.setLargeIcon(b.mLargeIcon == null ? null : b.mLargeIcon.toIcon(mContext));
+        if (Build.VERSION.SDK_INT < 23) {
+            mBuilder.setLargeIcon(b.mLargeIcon == null ? null : b.mLargeIcon.getBitmap());
+        } else {
+            Api23Impl.setLargeIcon(mBuilder,
+                    b.mLargeIcon == null ? null : b.mLargeIcon.toIcon(mContext));
+        }
 
         Notification.Builder builder = mBuilder.setSubText(b.mSubText);
         Notification.Builder builder1 = builder.setUsesChronometer(b.mUseChronometer);
@@ -172,7 +178,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                     NotificationCompat.CarExtender.EXTRA_CAR_EXTENDER, extenderBundleCopy);
         }
         if (b.mSmallIcon != null) {
-            mBuilder.setSmallIcon((Icon) b.mSmallIcon);
+            if (Build.VERSION.SDK_INT >= 23) {
+                Api23Impl.setSmallIcon(mBuilder, b.mSmallIcon);
+            }
         }
         if (Build.VERSION.SDK_INT >= 24) {
             mBuilder.setExtras(b.mExtras);
@@ -326,10 +334,17 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     }
 
     private void addAction(NotificationCompat.Action action) {
+        Notification.Action.Builder actionBuilder;
         IconCompat iconCompat = action.getIconCompat();
-        Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
-                iconCompat != null ? iconCompat.toIcon() : null, action.getTitle(),
-                action.getActionIntent());
+        if (Build.VERSION.SDK_INT >= 23) {
+            actionBuilder = Api23Impl.createBuilder(
+                    iconCompat != null ? iconCompat.toIcon() : null, action.getTitle(),
+                    action.getActionIntent());
+        } else {
+            actionBuilder = new Notification.Action.Builder(
+                    iconCompat != null ? iconCompat.getResId() : 0, action.getTitle(),
+                    action.getActionIntent());
+        }
         if (action.getRemoteInputs() != null) {
             for (android.app.RemoteInput remoteInput : RemoteInput.fromCompat(
                     action.getRemoteInputs())) {
@@ -611,6 +626,25 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         static Notification.Action.Builder setStyleHint(Notification.Action.Builder builder,
                 @NotificationCompat.Action.Style int style) {
             return builder.setStyleHint(style);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() { }
+
+        static Notification.Action.Builder createBuilder(Icon icon, CharSequence title,
+                PendingIntent intent) {
+            return new Notification.Action.Builder(icon, title, intent);
+        }
+
+        static Notification.Builder setSmallIcon(Notification.Builder builder,
+                Object icon /* Icon */) {
+            return builder.setSmallIcon((Icon) icon);
+        }
+
+        static Notification.Builder setLargeIcon(Notification.Builder builder, Icon icon) {
+            return builder.setLargeIcon(icon);
         }
     }
 }

@@ -410,12 +410,12 @@ public class PrecomputedTextCompat implements Spannable {
             // No framework support for PrecomputedText
             // Compute text layout and throw away StaticLayout for the purpose of warming up the
             // internal text layout cache.
-            StaticLayout.Builder.obtain(text, 0, text.length(), params.getTextPaint(),
-                    Integer.MAX_VALUE)
-                    .setBreakStrategy(params.getBreakStrategy())
-                    .setHyphenationFrequency(params.getHyphenationFrequency())
-                    .setTextDirection(params.getTextDirection())
-                    .build();
+            if (Build.VERSION.SDK_INT >= 23) {
+                Api23Impl.warmUpCache(text, params);
+            } else {
+                new StaticLayout(text, params.getTextPaint(), Integer.MAX_VALUE,
+                        Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+            }
 
             return new PrecomputedTextCompat(text, params, result);
         } finally {
@@ -703,6 +703,22 @@ public class PrecomputedTextCompat implements Spannable {
 
         static Spannable castToSpannable(PrecomputedText precomputedText) {
             return precomputedText;
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        static void warmUpCache(@NonNull CharSequence text, @NonNull Params params) {
+            StaticLayout.Builder.obtain(text, 0, text.length(), params.getTextPaint(),
+                    Integer.MAX_VALUE)
+                    .setBreakStrategy(params.getBreakStrategy())
+                    .setHyphenationFrequency(params.getHyphenationFrequency())
+                    .setTextDirection(params.getTextDirection())
+                    .build();
         }
     }
 }
