@@ -12,6 +12,20 @@ Module-specific guidance lives in per-directory `AGENTS.md` files (e.g.
 [`camera/AGENTS.md`](camera/AGENTS.md)) — read the one nearest your change. Deeper,
 task-specific workflows live in **skills**; see [Skills](#skills) below.
 
+## GlueY API 21 (Lollipop) Fork Guidance
+
+This repository is a custom **GlueY** fork dedicated to downporting core Jetpack libraries to target **Android 5.0 (API 21)**.
+* **Target minSdk**: `minSdk` has been globally lowered to `21` in [AndroidXConfig.kt](file:///i:/libs/GlueY/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfig.kt#L57).
+* **Key Compatibility Rules**:
+  * **System Services (`ContextCompat`)**: Do not reference system services introduced post-API 21 directly. Use the mapped service system in `LegacyServiceMapHolder` and catch `Throwable` during reflective class loads.
+  * **Themed Colors (`ResourcesCompat`)**: Themed color loading is backported on API < 23 using custom XML color state list parsers. Always query `getColorStateList` before falling back to `res.getColor`.
+  * **Accessibility Actions (`AccessibilityActionCompat`)**: Avoid referencing unsupported platform fields in `AccessibilityNodeInfo.AccessibilityAction` or `android.R.id` in static initializers. Resolve them dynamically at runtime via reflection, catching `Throwable`.
+  * **TextView Styling (`TextViewCompat`)**: Wrap newer platform features like break strategies or hyphenation frequencies in SDK version checks.
+* **Running Tests**:
+  * Run connected tests on Lollipop via:
+    `.\gradlew.bat :core:core:connectedAndroidTest --no-configuration-cache` inside `playground-projects/core-playground`.
+
+
 ## Canonical commands
 
 Replace `<project>` with the module's Gradle project path. Paths are declared in
