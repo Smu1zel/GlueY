@@ -430,7 +430,7 @@ public class ContextCompat {
         if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.getColor(context, id);
         } else {
-            return context.getResources().getColor(id);
+            return androidx.core.content.res.ResourcesCompat.getColor(context.getResources(), id, context.getTheme());
         }
     }
 
@@ -969,12 +969,12 @@ public class ContextCompat {
             SERVICES.put(android.hardware.camera2.CameraManager.class, Context.CAMERA_SERVICE);
             SERVICES.put(android.view.textservice.TextServicesManager.class, Context.TEXT_SERVICES_MANAGER_SERVICE);
             SERVICES.put(android.app.admin.DevicePolicyManager.class, Context.DEVICE_POLICY_SERVICE);
-            SERVICES.put(android.view.DisplayManager.class, Context.DISPLAY_SERVICE);
+            SERVICES.put(android.hardware.display.DisplayManager.class, Context.DISPLAY_SERVICE);
             SERVICES.put(android.app.DownloadManager.class, Context.DOWNLOAD_SERVICE);
             SERVICES.put(android.hardware.input.InputManager.class, Context.INPUT_SERVICE);
             SERVICES.put(android.app.job.JobScheduler.class, Context.JOB_SCHEDULER_SERVICE);
             SERVICES.put(android.app.KeyguardManager.class, Context.KEYGUARD_SERVICE);
-            SERVICES.put(android.net.LayoutInflater.class, Context.LAYOUT_INFLATER_SERVICE);
+            SERVICES.put(android.view.LayoutInflater.class, Context.LAYOUT_INFLATER_SERVICE);
             SERVICES.put(android.location.LocationManager.class, Context.LOCATION_SERVICE);
             SERVICES.put(android.media.projection.MediaProjectionManager.class, Context.MEDIA_PROJECTION_SERVICE);
             SERVICES.put(android.media.session.MediaSessionManager.class, Context.MEDIA_SESSION_SERVICE);
@@ -984,14 +984,14 @@ public class ContextCompat {
             SERVICES.put(android.net.nsd.NsdManager.class, Context.NSD_SERVICE);
             SERVICES.put(android.os.PowerManager.class, Context.POWER_SERVICE);
             SERVICES.put(android.print.PrintManager.class, Context.PRINT_SERVICE);
-            SERVICES.put(android.media.RestrictionsManager.class, Context.RESTRICTIONS_SERVICE);
+            SERVICES.put(android.content.RestrictionsManager.class, Context.RESTRICTIONS_SERVICE);
             SERVICES.put(android.app.SearchManager.class, Context.SEARCH_SERVICE);
             SERVICES.put(android.hardware.SensorManager.class, Context.SENSOR_SERVICE);
-            SERVICES.put(android.storage.StorageManager.class, Context.STORAGE_SERVICE);
+            SERVICES.put(android.os.storage.StorageManager.class, Context.STORAGE_SERVICE);
             SERVICES.put(android.telecom.TelecomManager.class, Context.TELECOM_SERVICE);
             SERVICES.put(android.telephony.TelephonyManager.class, Context.TELEPHONY_SERVICE);
             SERVICES.put(android.view.inputmethod.InputMethodManager.class, Context.INPUT_METHOD_SERVICE);
-            SERVICES.put(android.ui.UiModeManager.class, Context.UI_MODE_SERVICE);
+            SERVICES.put(android.app.UiModeManager.class, Context.UI_MODE_SERVICE);
             SERVICES.put(android.hardware.usb.UsbManager.class, Context.USB_SERVICE);
             SERVICES.put(android.os.UserManager.class, Context.USER_SERVICE);
             SERVICES.put(android.os.Vibrator.class, Context.VIBRATOR_SERVICE);
@@ -1001,8 +1001,27 @@ public class ContextCompat {
             SERVICES.put(android.view.WindowManager.class, Context.WINDOW_SERVICE);
             try {
                 SERVICES.put(Class.forName("android.app.usage.NetworkStatsManager"), "netstats");
-            } catch (ClassNotFoundException e) {
+            } catch (Throwable e) {
+                // Ignore
+            }
+            SERVICES.put(android.view.accessibility.CaptioningManager.class, Context.CAPTIONING_SERVICE);
+            SERVICES.put(android.content.ClipboardManager.class, Context.CLIPBOARD_SERVICE);
+            SERVICES.put(android.net.ConnectivityManager.class, Context.CONNECTIVITY_SERVICE);
+            SERVICES.put(android.hardware.ConsumerIrManager.class, Context.CONSUMER_IR_SERVICE);
+            SERVICES.put(android.os.DropBoxManager.class, Context.DROPBOX_SERVICE);
+            SERVICES.put(android.appwidget.AppWidgetManager.class, Context.APPWIDGET_SERVICE);
+            SERVICES.put(android.content.pm.LauncherApps.class, Context.LAUNCHER_APPS_SERVICE);
+            SERVICES.put(android.media.tv.TvInputManager.class, Context.TV_INPUT_SERVICE);
+            try {
+                SERVICES.put(Class.forName("android.telephony.SubscriptionManager"), "telephony_subscription_service");
+            } catch (Throwable e) {
+                // Ignore
+            }
+            try {
+                SERVICES.put(Class.forName("android.app.usage.UsageStatsManager"), Context.USAGE_STATS_SERVICE);
+            } catch (Throwable e) {
                 // Ignore
             }
         }
+    }
 }

@@ -69,7 +69,7 @@ public final class AppOpsManagerCompat {
      * @return The app op associated with the permission or null.
      */
     public static @Nullable String permissionToOp(@NonNull String permission) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (SDK_INT >= 23) {
             return Api23Impl.permissionToOp(permission);
         }
         return null;
@@ -92,7 +92,7 @@ public final class AppOpsManagerCompat {
      */
     public static int noteOp(@NonNull Context context, @NonNull String op, int uid,
             @NonNull String packageName) {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (SDK_INT >= 19) {
             AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
             return appOpsManager.noteOp(op, uid, packageName);
         }
@@ -112,7 +112,7 @@ public final class AppOpsManagerCompat {
      */
     public static int noteOpNoThrow(@NonNull Context context, @NonNull String op, int uid,
             @NonNull String packageName) {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (SDK_INT >= 19) {
             AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
             return appOpsManager.noteOpNoThrow(op, uid, packageName);
         }
@@ -137,7 +137,7 @@ public final class AppOpsManagerCompat {
      */
     public static int noteProxyOp(@NonNull Context context, @NonNull String op,
             @NonNull String proxiedPackageName) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (SDK_INT >= 23) {
             AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
             return Api23Impl.noteProxyOp(appOpsManager, op, proxiedPackageName);
         }
@@ -150,7 +150,7 @@ public final class AppOpsManagerCompat {
      */
     public static int noteProxyOpNoThrow(@NonNull Context context, @NonNull String op,
             @NonNull String proxiedPackageName) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (SDK_INT >= 23) {
             AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
             return Api23Impl.noteProxyOpNoThrow(appOpsManager, op, proxiedPackageName);
         }

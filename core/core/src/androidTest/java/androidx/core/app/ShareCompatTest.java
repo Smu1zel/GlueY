@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Build;
 import android.net.Uri;
 import android.support.v4.BaseInstrumentationTestCase;
 
@@ -95,7 +96,11 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
                     Intent.EXTRA_CHOSEN_COMPONENT_INTENT_SENDER,
                     IntentSender.class);
         }
-        assertEquals(pendingIntent.getIntentSender(), intentSender);
+        if (Build.VERSION.SDK_INT >= 22) {
+            assertEquals(pendingIntent.getIntentSender(), intentSender);
+        } else {
+            assertNull(intentSender);
+        }
     }
 
     @SuppressWarnings("deprecation")

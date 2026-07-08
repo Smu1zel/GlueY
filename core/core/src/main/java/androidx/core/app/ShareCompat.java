@@ -19,6 +19,7 @@ package androidx.core.app;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.app.Activity;
+import android.os.Build;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
@@ -38,6 +39,7 @@ import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.core.content.IntentCompat;
 

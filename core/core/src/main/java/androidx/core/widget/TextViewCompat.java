@@ -218,7 +218,11 @@ public final class TextViewCompat {
      * @param resId    The resource identifier of the style to apply.
      */
     public static void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {
-        textView.setTextAppearance(resId);
+        if (Build.VERSION.SDK_INT >= 23) {
+            Api23Impl.setTextAppearance(textView, resId);
+        } else {
+            textView.setTextAppearance(textView.getContext(), resId);
+        }
     }
 
     /**
@@ -788,8 +792,10 @@ public final class TextViewCompat {
         } else {
             PrecomputedTextCompat.Params.Builder builder =
                     new PrecomputedTextCompat.Params.Builder(new TextPaint(textView.getPaint()));
-            builder.setBreakStrategy(textView.getBreakStrategy());
-            builder.setHyphenationFrequency(textView.getHyphenationFrequency());
+            if (Build.VERSION.SDK_INT >= 23) {
+                builder.setBreakStrategy(Api23Impl.getBreakStrategy(textView));
+                builder.setHyphenationFrequency(Api23Impl.getHyphenationFrequency(textView));
+            }
             builder.setTextDirection(getTextDirectionHeuristic(textView));
             return builder.build();
         }
@@ -812,8 +818,10 @@ public final class TextViewCompat {
         textView.getPaint().set(params.getTextPaint());
         // getPaint().set() doesn't invalidate the internal layout objects.
         // setBreakStrategy/setHyphenationFrequency invalidates internal layout objects.
-        textView.setBreakStrategy(params.getBreakStrategy());
-        textView.setHyphenationFrequency(params.getHyphenationFrequency());
+        if (Build.VERSION.SDK_INT >= 23) {
+            Api23Impl.setBreakStrategy(textView, params.getBreakStrategy());
+            Api23Impl.setHyphenationFrequency(textView, params.getHyphenationFrequency());
+        }
     }
 
     /**
@@ -1085,6 +1093,31 @@ public final class TextViewCompat {
                 @FloatRange(from = 0) float lineHeight
         ) {
             textView.setLineHeight(unit, lineHeight);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {}
+
+        static int getBreakStrategy(TextView textView) {
+            return textView.getBreakStrategy();
+        }
+
+        static void setBreakStrategy(TextView textView, int breakStrategy) {
+            textView.setBreakStrategy(breakStrategy);
+        }
+
+        static int getHyphenationFrequency(TextView textView) {
+            return textView.getHyphenationFrequency();
+        }
+
+        static void setHyphenationFrequency(TextView textView, int hyphenationFrequency) {
+            textView.setHyphenationFrequency(hyphenationFrequency);
+        }
+
+        static void setTextAppearance(TextView textView, int resId) {
+            textView.setTextAppearance(resId);
         }
     }
 }

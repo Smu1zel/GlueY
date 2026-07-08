@@ -174,9 +174,16 @@ public final class ResourcesCompat {
             throws NotFoundException {
         if (SDK_INT >= 23) {
             return Api23Impl.getColor(res, id, theme);
-        } else {
-            return res.getColor(id);
         }
+        try {
+            ColorStateList csl = getColorStateList(res, id, theme);
+            if (csl != null) {
+                return csl.getDefaultColor();
+            }
+        } catch (Throwable e) {
+            // Ignore
+        }
+        return res.getColor(id);
     }
 
     /**

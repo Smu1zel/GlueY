@@ -311,6 +311,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void getSystemServiceNameCallsRealMethod() {
         final AtomicBoolean called = new AtomicBoolean();
         Context c = new ContextWrapper(mContext) {
@@ -338,6 +339,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void getSystemServiceCallsRealMethod() {
         final AtomicBoolean called = new AtomicBoolean();
         Context c = new ContextWrapper(mContext) {

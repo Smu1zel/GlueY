@@ -117,6 +117,27 @@ public class AccessibilityNodeInfoCompat {
 
         private static final String TAG = "A11yActionCompat";
 
+        static Object getPlatformAction(String fieldName) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                try {
+                    java.lang.reflect.Field field = AccessibilityNodeInfo.AccessibilityAction.class.getField(fieldName);
+                    return field.get(null);
+                } catch (Throwable e) {
+                    // Ignore
+                }
+            }
+            return null;
+        }
+
+        static int getActionId(String fieldName, int fallback) {
+            try {
+                java.lang.reflect.Field field = android.R.id.class.getField(fieldName);
+                return field.getInt(null);
+            } catch (Throwable e) {
+                return fallback;
+            }
+        }
+
         /**
          * Action that gives input focus to the node.
          * <p>The focus request sends an event of {@link AccessibilityEvent#TYPE_VIEW_FOCUSED}
@@ -472,8 +493,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_SHOW_ON_SCREEN =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN,
-                        android.R.id.accessibilityActionShowOnScreen, null, null, null);
+                        getPlatformAction("ACTION_SHOW_ON_SCREEN"),
+                        getActionId("accessibilityActionShowOnScreen", 0), null, null, null);
 
         /**
          * Action that scrolls the node to make the specified collection
@@ -489,8 +510,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_TO_POSITION =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION,
-                        android.R.id.accessibilityActionScrollToPosition, null, null,
+                        getPlatformAction("ACTION_SCROLL_TO_POSITION"),
+                        getActionId("accessibilityActionScrollToPosition", 0), null, null,
                         ScrollToPositionArguments.class);
 
         /**
@@ -498,63 +519,63 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_UP =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP,
-                        android.R.id.accessibilityActionScrollUp, null, null, null);
+                        getPlatformAction("ACTION_SCROLL_UP"),
+                        getActionId("accessibilityActionScrollUp", 0), null, null, null);
         /**
          * Action to scroll the node content left.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_LEFT =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT,
-                        android.R.id.accessibilityActionScrollLeft, null, null, null);
+                        getPlatformAction("ACTION_SCROLL_LEFT"),
+                        getActionId("accessibilityActionScrollLeft", 0), null, null, null);
 
         /**
          * Action to scroll the node content down.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_DOWN =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN,
-                        android.R.id.accessibilityActionScrollDown, null, null, null);
+                        getPlatformAction("ACTION_SCROLL_DOWN"),
+                        getActionId("accessibilityActionScrollDown", 0), null, null, null);
 
         /**
          * Action to scroll the node content right.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_RIGHT =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT,
-                        android.R.id.accessibilityActionScrollRight, null, null, null);
+                        getPlatformAction("ACTION_SCROLL_RIGHT"),
+                        getActionId("accessibilityActionScrollRight", 0), null, null, null);
 
         /**
          * Action to move to the page above.
          */
         public static final @NonNull AccessibilityActionCompat ACTION_PAGE_UP =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 29
-                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_UP : null,
-                        android.R.id.accessibilityActionPageUp, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_PAGE_UP"),
+                        getActionId("accessibilityActionPageUp", 0), null, null, null);
 
         /**
          * Action to move to the page below.
          */
         public static final @NonNull AccessibilityActionCompat ACTION_PAGE_DOWN =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 29
-                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_DOWN : null,
-                        android.R.id.accessibilityActionPageDown, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_PAGE_DOWN"),
+                        getActionId("accessibilityActionPageDown", 0), null, null, null);
 
         /**
          * Action to move to the page left.
          */
         public static final @NonNull AccessibilityActionCompat ACTION_PAGE_LEFT =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 29
-                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_LEFT : null,
-                        android.R.id.accessibilityActionPageLeft, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_PAGE_LEFT"),
+                        getActionId("accessibilityActionPageLeft", 0), null, null, null);
 
         /**
          * Action to move to the page right.
          */
         public static final @NonNull AccessibilityActionCompat ACTION_PAGE_RIGHT =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 29
-                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_RIGHT : null,
-                        android.R.id.accessibilityActionPageRight, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_PAGE_RIGHT"),
+                        getActionId("accessibilityActionPageRight", 0), null, null, null);
 
         /**
          * Action that context clicks the node.
@@ -573,8 +594,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_CONTEXT_CLICK =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK,
-                        android.R.id.accessibilityActionContextClick, null, null, null);
+                        getPlatformAction("ACTION_CONTEXT_CLICK"),
+                        getActionId("accessibilityActionContextClick", 0), null, null, null);
 
         /**
          * Action that sets progress between {@link  RangeInfoCompat#getMin() RangeInfo.getMin()} and
@@ -587,9 +608,9 @@ public class AccessibilityNodeInfoCompat {
          * @see RangeInfoCompat
          */
         public static final AccessibilityActionCompat ACTION_SET_PROGRESS =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 24
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS : null,
-                        android.R.id.accessibilityActionSetProgress, null, null,
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_SET_PROGRESS"),
+                        getActionId("accessibilityActionSetProgress", 0), null, null,
                         SetProgressArguments.class);
 
         /**
@@ -600,27 +621,27 @@ public class AccessibilityNodeInfoCompat {
          * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVE_WINDOW_Y}
          */
         public static final AccessibilityActionCompat ACTION_MOVE_WINDOW =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 26
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_MOVE_WINDOW : null,
-                        android.R.id.accessibilityActionMoveWindow, null, null,
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_MOVE_WINDOW"),
+                        getActionId("accessibilityActionMoveWindow", 0), null, null,
                         MoveWindowArguments.class);
 
         /**
          * Action to show a tooltip.
          */
         public static final AccessibilityActionCompat ACTION_SHOW_TOOLTIP =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TOOLTIP : null,
-                        android.R.id.accessibilityActionShowTooltip, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_SHOW_TOOLTIP"),
+                        getActionId("accessibilityActionShowTooltip", 0), null, null, null);
 
         /**
          * Action to hide a tooltip. A node should expose this action only for views that are
          * currently showing a tooltip.
          */
         public static final AccessibilityActionCompat ACTION_HIDE_TOOLTIP =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP : null,
-                        android.R.id.accessibilityActionHideTooltip, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_HIDE_TOOLTIP"),
+                        getActionId("accessibilityActionHideTooltip", 0), null, null, null);
 
         /**
          * Action that presses and holds a node.
@@ -648,9 +669,9 @@ public class AccessibilityNodeInfoCompat {
          * <p>
          */
         public static final @NonNull AccessibilityActionCompat ACTION_PRESS_AND_HOLD =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_PRESS_AND_HOLD : null,
-                        android.R.id.accessibilityActionPressAndHold, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_PRESS_AND_HOLD"),
+                        getActionId("accessibilityActionPressAndHold", 0), null, null, null);
 
         /**
          * Action to send an ime actionId which is from
@@ -661,9 +682,9 @@ public class AccessibilityNodeInfoCompat {
          * with input focus and editable.
          */
         public static final @NonNull AccessibilityActionCompat ACTION_IME_ENTER =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER : null,
-                        android.R.id.accessibilityActionImeEnter, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_IME_ENTER"),
+                        getActionId("accessibilityActionImeEnter", 0), null, null, null);
 
         /**
          * Action to start a drag.
@@ -677,9 +698,9 @@ public class AccessibilityNodeInfoCompat {
          * @see AccessibilityEventCompat#CONTENT_CHANGE_TYPE_DRAG_STARTED
          */
         public static final @NonNull AccessibilityActionCompat ACTION_DRAG_START =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 32
-                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_DRAG_START : null,
-                        android.R.id.accessibilityActionDragStart, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_DRAG_START"),
+                        getActionId("accessibilityActionDragStart", 0), null, null, null);
 
         /**
          * Action to trigger a drop of the content being dragged.
@@ -693,9 +714,9 @@ public class AccessibilityNodeInfoCompat {
          * @see AccessibilityEventCompat#CONTENT_CHANGE_TYPE_DRAG_DROPPED
          */
         public static final @NonNull AccessibilityActionCompat ACTION_DRAG_DROP =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 32
-                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_DRAG_DROP : null,
-                        android.R.id.accessibilityActionDragDrop, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_DRAG_DROP"),
+                        getActionId("accessibilityActionDragDrop", 0), null, null, null);
 
         /**
          * Action to cancel a drag.
@@ -706,18 +727,17 @@ public class AccessibilityNodeInfoCompat {
          * @see AccessibilityEventCompat#CONTENT_CHANGE_TYPE_DRAG_CANCELLED
          */
         public static final @NonNull AccessibilityActionCompat ACTION_DRAG_CANCEL =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 32
-                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_DRAG_CANCEL : null,
-                        android.R.id.accessibilityActionDragCancel, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_DRAG_CANCEL"),
+                        getActionId("accessibilityActionDragCancel", 0), null, null, null);
 
         /**
          * Action to show suggestions for editable text.
          */
         public static final @NonNull AccessibilityActionCompat ACTION_SHOW_TEXT_SUGGESTIONS =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 33
-                        ?   AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TEXT_SUGGESTIONS
-                        :   null, android.R.id.accessibilityActionShowTextSuggestions, null,
-                        null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_SHOW_TEXT_SUGGESTIONS"),
+                        getActionId("accessibilityActionShowTextSuggestions", 0), null, null, null);
 
         /**
          * Action that brings fully on screen the next node in the specified direction.
@@ -745,27 +765,17 @@ public class AccessibilityNodeInfoCompat {
         @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
         public static final @NonNull AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION =
                 new AccessibilityActionCompat(
-                        Build.VERSION.SDK_INT >= 34 ? Api34Impl.getActionScrollInDirection() : null,
-                        android.R.id.accessibilityActionScrollInDirection, null, null, null);
+                        getPlatformAction("ACTION_SCROLL_IN_DIRECTION"),
+                        getActionId("accessibilityActionScrollInDirection", 0), null, null, null);
 
         /**
          * Action to set the extended selection. Performing this action with no arguments clears the
          * selection.
-         *
-         * <strong>Example:</strong> <code><pre><p>
-         *  Bundle arguments = new Bundle();
-         *  SelectionCompat selection = new SelectionCompat(null, null);
-         *  arguments.setParcelable(
-         *          AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_PARCELABLE,
-         *          selection.unwrap());
-         *  info.performAction(
-         *          AccessibilityActionCompat.ACTION_SET_EXTENDED_SELECTION.getId(), arguments);
-         * </pre></code>
          */
         public static final @NonNull AccessibilityActionCompat ACTION_SET_EXTENDED_SELECTION =
-                new AccessibilityActionCompat(BuildCompat.isAtLeastB_1()
-                        ? Api36MinorImpl.getActionSetExtendedSelection() : null,
-                        android.R.id.accessibilityActionSetExtendedSelection, null, null, null);
+                new AccessibilityActionCompat(
+                        getPlatformAction("ACTION_SET_EXTENDED_SELECTION"),
+                        getActionId("accessibilityActionSetExtendedSelection", 0), null, null, null);
 
         final Object mAction;
         private final int mId;

@@ -1204,6 +1204,7 @@ public class NotificationManagerCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testGetCurrentInterruptionFilter() {
         NotificationManagerCompat notificationManager = new NotificationManagerCompat(
                 mPlatformNotificationManager,
