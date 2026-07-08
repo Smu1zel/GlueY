@@ -64,6 +64,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -606,7 +607,11 @@ public class ContextCompat {
      */
     public static <T> @Nullable T getSystemService(@NonNull Context context,
             @NonNull Class<T> serviceClass) {
-        return context.getSystemService(serviceClass);
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.getSystemService(context, serviceClass);
+        }
+        String serviceName = getSystemServiceName(context, serviceClass);
+        return serviceName != null ? (T) context.getSystemService(serviceName) : null;
     }
 
     /**
@@ -701,7 +706,10 @@ public class ContextCompat {
      */
     public static @Nullable String getSystemServiceName(@NonNull Context context,
             @NonNull Class<?> serviceClass) {
-        return context.getSystemServiceName(serviceClass);
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.getSystemServiceName(context, serviceClass);
+        }
+        return LegacyServiceMapHolder.SERVICES.get(serviceClass);
     }
 
     /**
@@ -937,5 +945,64 @@ public class ContextCompat {
         static int getColor(Context obj, int id) {
             return obj.getColor(id);
         }
+
+        static <T> T getSystemService(Context context, Class<T> serviceClass) {
+            return context.getSystemService(serviceClass);
+        }
+
+        static String getSystemServiceName(Context context, Class<?> serviceClass) {
+            return context.getSystemServiceName(serviceClass);
+        }
     }
+
+    private static final class LegacyServiceMapHolder {
+        static final HashMap<Class<?>, String> SERVICES = new HashMap<>();
+        static {
+            SERVICES.put(android.view.accessibility.AccessibilityManager.class, Context.ACCESSIBILITY_SERVICE);
+            SERVICES.put(android.accounts.AccountManager.class, Context.ACCOUNT_SERVICE);
+            SERVICES.put(android.app.ActivityManager.class, Context.ACTIVITY_SERVICE);
+            SERVICES.put(android.app.AlarmManager.class, Context.ALARM_SERVICE);
+            SERVICES.put(android.app.AppOpsManager.class, Context.APP_OPS_SERVICE);
+            SERVICES.put(android.media.AudioManager.class, Context.AUDIO_SERVICE);
+            SERVICES.put(android.os.BatteryManager.class, Context.BATTERY_SERVICE);
+            SERVICES.put(android.bluetooth.BluetoothManager.class, Context.BLUETOOTH_SERVICE);
+            SERVICES.put(android.hardware.camera2.CameraManager.class, Context.CAMERA_SERVICE);
+            SERVICES.put(android.view.textservice.TextServicesManager.class, Context.TEXT_SERVICES_MANAGER_SERVICE);
+            SERVICES.put(android.app.admin.DevicePolicyManager.class, Context.DEVICE_POLICY_SERVICE);
+            SERVICES.put(android.view.DisplayManager.class, Context.DISPLAY_SERVICE);
+            SERVICES.put(android.app.DownloadManager.class, Context.DOWNLOAD_SERVICE);
+            SERVICES.put(android.hardware.input.InputManager.class, Context.INPUT_SERVICE);
+            SERVICES.put(android.app.job.JobScheduler.class, Context.JOB_SCHEDULER_SERVICE);
+            SERVICES.put(android.app.KeyguardManager.class, Context.KEYGUARD_SERVICE);
+            SERVICES.put(android.net.LayoutInflater.class, Context.LAYOUT_INFLATER_SERVICE);
+            SERVICES.put(android.location.LocationManager.class, Context.LOCATION_SERVICE);
+            SERVICES.put(android.media.projection.MediaProjectionManager.class, Context.MEDIA_PROJECTION_SERVICE);
+            SERVICES.put(android.media.session.MediaSessionManager.class, Context.MEDIA_SESSION_SERVICE);
+            SERVICES.put(android.media.MediaRouter.class, Context.MEDIA_ROUTER_SERVICE);
+            SERVICES.put(android.nfc.NfcManager.class, Context.NFC_SERVICE);
+            SERVICES.put(android.app.NotificationManager.class, Context.NOTIFICATION_SERVICE);
+            SERVICES.put(android.net.nsd.NsdManager.class, Context.NSD_SERVICE);
+            SERVICES.put(android.os.PowerManager.class, Context.POWER_SERVICE);
+            SERVICES.put(android.print.PrintManager.class, Context.PRINT_SERVICE);
+            SERVICES.put(android.media.RestrictionsManager.class, Context.RESTRICTIONS_SERVICE);
+            SERVICES.put(android.app.SearchManager.class, Context.SEARCH_SERVICE);
+            SERVICES.put(android.hardware.SensorManager.class, Context.SENSOR_SERVICE);
+            SERVICES.put(android.storage.StorageManager.class, Context.STORAGE_SERVICE);
+            SERVICES.put(android.telecom.TelecomManager.class, Context.TELECOM_SERVICE);
+            SERVICES.put(android.telephony.TelephonyManager.class, Context.TELEPHONY_SERVICE);
+            SERVICES.put(android.view.inputmethod.InputMethodManager.class, Context.INPUT_METHOD_SERVICE);
+            SERVICES.put(android.ui.UiModeManager.class, Context.UI_MODE_SERVICE);
+            SERVICES.put(android.hardware.usb.UsbManager.class, Context.USB_SERVICE);
+            SERVICES.put(android.os.UserManager.class, Context.USER_SERVICE);
+            SERVICES.put(android.os.Vibrator.class, Context.VIBRATOR_SERVICE);
+            SERVICES.put(android.app.WallpaperManager.class, Context.WALLPAPER_SERVICE);
+            SERVICES.put(android.net.wifi.p2p.WifiP2pManager.class, Context.WIFI_P2P_SERVICE);
+            SERVICES.put(android.net.wifi.WifiManager.class, Context.WIFI_SERVICE);
+            SERVICES.put(android.view.WindowManager.class, Context.WINDOW_SERVICE);
+            try {
+                SERVICES.put(Class.forName("android.app.usage.NetworkStatsManager"), "netstats");
+            } catch (ClassNotFoundException e) {
+                // Ignore
+            }
+        }
 }

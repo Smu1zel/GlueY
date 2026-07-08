@@ -69,7 +69,10 @@ public final class AppOpsManagerCompat {
      * @return The app op associated with the permission or null.
      */
     public static @Nullable String permissionToOp(@NonNull String permission) {
-        return AppOpsManager.permissionToOp(permission);
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.permissionToOp(permission);
+        }
+        return null;
     }
 
     /**
@@ -89,20 +92,31 @@ public final class AppOpsManagerCompat {
      */
     public static int noteOp(@NonNull Context context, @NonNull String op, int uid,
             @NonNull String packageName) {
-        AppOpsManager appOpsManager =
-                (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-        return appOpsManager.noteOp(op, uid, packageName);
+        if (Build.VERSION.SDK_INT >= 19) {
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            return appOpsManager.noteOp(op, uid, packageName);
+        }
+        return MODE_ALLOWED;
     }
 
     /**
      * Like {@link #noteOp} but instead of throwing a {@link SecurityException} it
      * returns {@link #MODE_ERRORED}.
+     * @param context Your context.
+     * @param op The operation to note.  One of the OPSTR_* constants.
+     * @param uid The user id of the application attempting to perform the operation.
+     * @param packageName The name of the application attempting to perform the operation.
+     * @return Returns {@link #MODE_ALLOWED} if the operation is allowed, or
+     * {@link #MODE_IGNORED} if it is not allowed and should be silently ignored (without
+     * causing the app to crash).
      */
     public static int noteOpNoThrow(@NonNull Context context, @NonNull String op, int uid,
             @NonNull String packageName) {
-        AppOpsManager appOpsManager =
-                (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-        return appOpsManager.noteOpNoThrow(op, uid, packageName);
+        if (Build.VERSION.SDK_INT >= 19) {
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            return appOpsManager.noteOpNoThrow(op, uid, packageName);
+        }
+        return MODE_ALLOWED;
     }
 
     /**
@@ -123,8 +137,11 @@ public final class AppOpsManagerCompat {
      */
     public static int noteProxyOp(@NonNull Context context, @NonNull String op,
             @NonNull String proxiedPackageName) {
-        AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
-        return appOpsManager.noteProxyOp(op, proxiedPackageName);
+        if (Build.VERSION.SDK_INT >= 23) {
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            return Api23Impl.noteProxyOp(appOpsManager, op, proxiedPackageName);
+        }
+        return MODE_ALLOWED;
     }
 
     /**
@@ -133,8 +150,11 @@ public final class AppOpsManagerCompat {
      */
     public static int noteProxyOpNoThrow(@NonNull Context context, @NonNull String op,
             @NonNull String proxiedPackageName) {
-        AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
-        return appOpsManager.noteProxyOpNoThrow(op, proxiedPackageName);
+        if (Build.VERSION.SDK_INT >= 23) {
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            return Api23Impl.noteProxyOpNoThrow(appOpsManager, op, proxiedPackageName);
+        }
+        return MODE_ALLOWED;
     }
 
     /**
@@ -202,6 +222,24 @@ public final class AppOpsManagerCompat {
          */
         static @NonNull String getOpPackageName(@NonNull Context context) {
             return context.getOpPackageName();
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {}
+
+        static String permissionToOp(String permission) {
+            return AppOpsManager.permissionToOp(permission);
+        }
+
+        static int noteProxyOp(AppOpsManager appOpsManager, String op, String proxiedPackageName) {
+            return appOpsManager.noteProxyOp(op, proxiedPackageName);
+        }
+
+        static int noteProxyOpNoThrow(AppOpsManager appOpsManager, String op,
+                String proxiedPackageName) {
+            return appOpsManager.noteProxyOpNoThrow(op, proxiedPackageName);
         }
     }
 }

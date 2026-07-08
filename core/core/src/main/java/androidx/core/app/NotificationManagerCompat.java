@@ -846,7 +846,10 @@ public final class NotificationManagerCompat {
      * globally.
      */
     public @InterruptionFilter int getCurrentInterruptionFilter() {
-        return mNotificationManager.getCurrentInterruptionFilter();
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.getCurrentInterruptionFilter(mNotificationManager);
+        }
+        return INTERRUPTION_FILTER_UNKNOWN;
     }
 
     /**
@@ -1192,6 +1195,10 @@ public final class NotificationManagerCompat {
                 return new ArrayList<>();
             }
             return Arrays.asList(notifs);
+        }
+
+        static int getCurrentInterruptionFilter(NotificationManager notificationManager) {
+            return notificationManager.getCurrentInterruptionFilter();
         }
     }
 

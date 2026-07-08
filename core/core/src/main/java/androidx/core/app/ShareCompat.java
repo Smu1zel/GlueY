@@ -406,7 +406,10 @@ public final class ShareCompat {
          * @return A chooser Intent for the currently configured sharing action
          */
         public @NonNull Intent createChooserIntent() {
-            return Intent.createChooser(getIntent(), mChooserTitle, mIntentSender);
+            if (Build.VERSION.SDK_INT >= 22) {
+                return Api22Impl.createChooser(getIntent(), mChooserTitle, mIntentSender);
+            }
+            return Intent.createChooser(getIntent(), mChooserTitle);
         }
 
         /**
@@ -1028,5 +1031,14 @@ public final class ShareCompat {
 
         intent.setClipData(clipData);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    }
+
+    @RequiresApi(22)
+    static class Api22Impl {
+        private Api22Impl() {}
+
+        static Intent createChooser(Intent target, CharSequence title, IntentSender sender) {
+            return Intent.createChooser(target, title, sender);
+        }
     }
 }
