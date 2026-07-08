@@ -590,6 +590,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testBuilderFromNotification_withSmallAndLargeIcons() {
         IconCompat smallIcon = IconCompat.createWithResource(mContext, R.drawable.ic_call_answer);
         Icon largeIcon = Icon.createWithResource(mContext, R.drawable.notification_bg);
@@ -1073,6 +1074,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testNotificationSmallIcon() {
         IconCompat icon = IconCompat.createWithResource(mContext,
                 R.drawable.notification_action_background);
@@ -1175,6 +1177,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testSetNotification_setLargeIconNull() {
         Notification n = new NotificationCompat.Builder(mContext, "channelId")
                 .setSmallIcon(1)
@@ -1194,6 +1197,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testSetNotification_setLargeIconBitmap() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.notification_bg_low_pressed);
@@ -1211,6 +1215,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testSetNotification_setLargeIconNullIcon() {
         Notification n = new NotificationCompat.Builder(mContext, "channelId")
                 .setSmallIcon(1)
@@ -1233,6 +1238,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testSetNotification_setLargeIconIcon() {
         IconCompat iconCompat = IconCompat.createWithResource(mContext,
                 R.drawable.notification_bg_low_pressed);
@@ -1623,6 +1629,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testBigPictureStyle_withIconNullBigLargeIcon() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.notification_bg_low_pressed);
@@ -1641,6 +1648,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testBigPictureStyle_withIconBigLargeIcon() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.notification_bg_low_pressed);
@@ -1734,6 +1742,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SuppressWarnings("deprecation")
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testBigPictureStyle_recoverStyleWithBitmap() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.notification_bg_low_pressed);
@@ -1763,6 +1772,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SuppressWarnings("deprecation")
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testBigPictureStyle_recoverStyleWithResIcon() {
         Notification n = new Notification.Builder(mContext)
                 .setSmallIcon(1)
@@ -2823,7 +2833,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 extras.getCharSequence(NotificationCompat.EXTRA_TEXT));
     }
 
-    @SdkSuppress(maxSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationVerificationInfo() {
         PendingIntent answerIntent = createIntent("answer");
@@ -2893,7 +2903,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationIncoming() {
         // Create a placeholder icon for use with the person.
@@ -2963,7 +2973,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(personIcon.toString(), notification.getLargeIcon().toString());
     }
 
-    @SdkSuppress(maxSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationIncomingVideo() {
         PendingIntent answerIntent = createIntent("answer");
@@ -3003,7 +3013,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                         ForegroundColorSpan.class)[0].getForegroundColor());
     }
 
-    @SdkSuppress(maxSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationOngoing() {
         // Create a placeholder icon for use with the person.
@@ -3065,7 +3075,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(personIcon.toString(), notification.getLargeIcon().toString());
     }
 
-    @SdkSuppress(maxSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationScreening() {
         // Create a placeholder icon for use with the person.

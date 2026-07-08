@@ -38,6 +38,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Shader;
 import android.graphics.drawable.AdaptiveIconDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -48,6 +49,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
@@ -545,7 +547,54 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     public @Nullable Drawable loadDrawable(@NonNull Context context) {
         checkResource(context);
-        return toIcon(context).loadDrawable(context);
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.loadDrawable(Api23Impl.toIcon(this, context), context);
+        }
+        final Drawable result = loadDrawableInner(context);
+        if (result != null && (mTintList != null || mTintMode != DEFAULT_TINT_MODE)) {
+            result.mutate();
+            result.setTintList(mTintList);
+            result.setTintMode(mTintMode);
+        }
+        return result;
+    }
+
+    private Drawable loadDrawableInner(Context context) {
+        switch (mType) {
+            case TYPE_BITMAP:
+                return new BitmapDrawable(context.getResources(), (Bitmap) mObj1);
+            case TYPE_ADAPTIVE_BITMAP:
+                return new BitmapDrawable(context.getResources(),
+                        createLegacyIconFromAdaptiveIcon((Bitmap) mObj1, false));
+            case TYPE_RESOURCE:
+                return ContextCompat.getDrawable(context, mInt1);
+            case TYPE_DATA:
+                return new BitmapDrawable(context.getResources(),
+                        BitmapFactory.decodeByteArray((byte[]) mObj1, mInt1, mInt2)
+                );
+            case TYPE_URI:
+                InputStream is = getUriInputStream(context);
+                if (is != null) {
+                    return new BitmapDrawable(context.getResources(),
+                            BitmapFactory.decodeStream(is));
+                }
+                break;
+            case TYPE_URI_ADAPTIVE_BITMAP:
+                is = getUriInputStream(context);
+                if (is != null) {
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        return Api26Impl.createAdaptiveIconDrawable(null,
+                                new BitmapDrawable(context.getResources(),
+                                        BitmapFactory.decodeStream(is)));
+                    } else {
+                        return new BitmapDrawable(context.getResources(),
+                                createLegacyIconFromAdaptiveIcon(
+                                        BitmapFactory.decodeStream(is), false));
+                    }
+                }
+                break;
+        }
+        return null;
     }
 
     /**
@@ -972,6 +1021,10 @@ public class IconCompat extends CustomVersionedParcelable {
         static Icon createWithAdaptiveBitmap(Bitmap bits) {
             return Icon.createWithAdaptiveBitmap(bits);
         }
+
+        static Drawable createAdaptiveIconDrawable(Drawable background, Drawable foreground) {
+            return new AdaptiveIconDrawable(background, foreground);
+        }
     }
 
     @RequiresApi(30)
@@ -1198,6 +1251,11 @@ public class IconCompat extends CustomVersionedParcelable {
                 icon.setTintMode(iconCompat.mTintMode);
             }
             return icon;
+        }
+
+        @DoNotInline
+        static Drawable loadDrawable(Icon icon, Context context) {
+            return icon.loadDrawable(context);
         }
     }
 }

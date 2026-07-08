@@ -30,12 +30,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.DragEvent;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
@@ -519,7 +521,29 @@ public class ActivityCompat extends ContextCompat {
             ((RequestPermissionsRequestCodeValidator) activity)
                     .validateRequestPermissionsRequestCode(requestCode);
         }
-        activity.requestPermissions(permissions, requestCode);
+        if (Build.VERSION.SDK_INT >= 23) {
+            Api23Impl.requestPermissions(activity, permissionsArray, requestCode);
+        } else if (activity instanceof OnRequestPermissionsResultCallback) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    final int[] grantResults = new int[permissionsArray.length];
+
+                    PackageManager packageManager = activity.getPackageManager();
+                    String packageName = activity.getPackageName();
+
+                    final int permissionCount = permissionsArray.length;
+                    for (int i = 0; i < permissionCount; i++) {
+                        grantResults[i] = packageManager.checkPermission(
+                                permissionsArray[i], packageName);
+                    }
+
+                    ((OnRequestPermissionsResultCallback) activity).onRequestPermissionsResult(
+                            requestCode, permissionsArray, grantResults);
+                }
+            });
+        }
     }
 
     /**
@@ -543,8 +567,10 @@ public class ActivityCompat extends ContextCompat {
             return Api32Impl.shouldShowRequestPermissionRationale(activity, permission);
         } else if (Build.VERSION.SDK_INT == 31) {
             return Api31Impl.shouldShowRequestPermissionRationale(activity, permission);
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.shouldShowRequestPermissionRationale(activity, permission);
         } else {
-            return activity.shouldShowRequestPermissionRationale(permission);
+            return false;
         }
     }
 
@@ -713,7 +739,7 @@ public class ActivityCompat extends ContextCompat {
         public void onSharedElementsArrived(List<String> sharedElementNames,
                 List<View> sharedElements, final OnSharedElementsReadyListener listener) {
             mCallback.onSharedElementsArrived(sharedElementNames, sharedElements,
-                    listener::onSharedElementsReady);
+                    () -> Api23Impl.onSharedElementsReady(listener));
         }
     }
 
@@ -793,8 +819,32 @@ public class ActivityCompat extends ContextCompat {
         }
 
         @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
+        @DoNotInline
         static <T> T requireViewById(Activity activity, int id) {
             return (T) activity.requireViewById(id);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void requestPermissions(Activity activity, String[] permissions, int requestCode) {
+            activity.requestPermissions(permissions, requestCode);
+        }
+
+        @DoNotInline
+        static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
+            return activity.shouldShowRequestPermissionRationale(permission);
+        }
+
+        @DoNotInline
+        static void onSharedElementsReady(Object onSharedElementsReadyListener) {
+            ((android.app.SharedElementCallback.OnSharedElementsReadyListener)
+                    onSharedElementsReadyListener).onSharedElementsReady();
         }
     }
 }

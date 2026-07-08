@@ -41,6 +41,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.versionedparcelable.ParcelUtils;
 
@@ -141,6 +142,7 @@ public class IconCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testCreateWithBitmap() {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.RED);
@@ -202,6 +204,7 @@ public class IconCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testCreateWithData() {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.YELLOW);
@@ -224,6 +227,7 @@ public class IconCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testCreateWithResource() {
         Context context = ApplicationProvider.getApplicationContext();
         Drawable original = context.getDrawable(R.drawable.test_drawable_red);
@@ -247,6 +251,7 @@ public class IconCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void testCreateWithResource_toFromBundle() {
         Context context = ApplicationProvider.getApplicationContext();
         Drawable original = context.getDrawable(R.drawable.test_drawable_red);

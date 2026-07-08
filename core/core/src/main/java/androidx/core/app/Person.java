@@ -18,6 +18,7 @@ package androidx.core.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 
@@ -354,13 +355,15 @@ public class Person {
         }
 
         static Person fromPersistableBundle(PersistableBundle bundle) {
-            return new Builder()
+            Builder builder = new Builder()
                     .setName(bundle.getString(NAME_KEY))
                     .setUri(bundle.getString(URI_KEY))
-                    .setKey(bundle.getString(KEY_KEY))
-                    .setBot(bundle.getBoolean(IS_BOT_KEY))
-                    .setImportant(bundle.getBoolean(IS_IMPORTANT_KEY))
-                    .build();
+                    .setKey(bundle.getString(KEY_KEY));
+            if (Build.VERSION.SDK_INT >= 22) {
+                builder.setBot(bundle.getBoolean(IS_BOT_KEY));
+                builder.setImportant(bundle.getBoolean(IS_IMPORTANT_KEY));
+            }
+            return builder.build();
         }
 
         static PersistableBundle toPersistableBundle(Person person) {
@@ -368,8 +371,10 @@ public class Person {
             result.putString(NAME_KEY, person.mName != null ? person.mName.toString() : null);
             result.putString(URI_KEY, person.mUri);
             result.putString(KEY_KEY, person.mKey);
-            result.putBoolean(IS_BOT_KEY, person.mIsBot);
-            result.putBoolean(IS_IMPORTANT_KEY, person.mIsImportant);
+            if (Build.VERSION.SDK_INT >= 22) {
+                result.putBoolean(IS_BOT_KEY, person.mIsBot);
+                result.putBoolean(IS_IMPORTANT_KEY, person.mIsImportant);
+            }
             return result;
         }
     }

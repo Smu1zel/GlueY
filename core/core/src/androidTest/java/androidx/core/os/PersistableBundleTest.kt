@@ -19,6 +19,7 @@ package androidx.core.os
 import android.content.Context
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -66,6 +67,7 @@ class PersistableBundleTest {
 
     @Suppress("DEPRECATION")
     @Test
+    @SdkSuppress(minSdkVersion = 22)
     fun persistableBundleOfValidApi22() {
         val bundle = persistableBundleOf("boolean" to true, "booleanArray" to booleanArrayOf())
 

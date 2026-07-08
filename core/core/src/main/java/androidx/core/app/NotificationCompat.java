@@ -64,6 +64,7 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DimenRes;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
@@ -1303,10 +1304,16 @@ public class NotificationCompat {
             // TODO: Copy custom RemoteViews from the Notification.
 
             // Avoid the setter which requires wrapping/unwrapping IconCompat and extra null checks
-            this.mSmallIcon = notification.getSmallIcon();
-            Icon largeIcon = notification.getLargeIcon();
-            if (largeIcon != null) {
-                this.mLargeIcon = IconCompat.createFromIcon(largeIcon);
+            if (Build.VERSION.SDK_INT >= 23) {
+                this.mSmallIcon = Api23Impl.getSmallIcon(notification);
+                Icon largeIcon = Api23Impl.getLargeIcon(notification);
+                if (largeIcon != null) {
+                    this.mLargeIcon = IconCompat.createFromIcon(largeIcon);
+                }
+            } else {
+                if (notification.largeIcon != null) {
+                    this.mLargeIcon = IconCompat.createWithBitmap(notification.largeIcon);
+                }
             }
 
             // Add actions from the notification.
@@ -1469,7 +1476,13 @@ public class NotificationCompat {
          * @param icon The small Icon object to use
          */
         public @NonNull Builder setSmallIcon(@NonNull IconCompat icon) {
-            this.mSmallIcon = icon.toIcon(mContext);
+            if (Build.VERSION.SDK_INT >= 23) {
+                this.mSmallIcon = Api23Impl.toIcon(icon, mContext);
+            } else {
+                if (icon.getType() == IconCompat.TYPE_RESOURCE) {
+                    mNotification.icon = icon.getResId();
+                }
+            }
             return this;
         }
 
@@ -3485,11 +3498,15 @@ public class NotificationCompat {
                 if (mBigLargeIcon == null) {
                     style.bigLargeIcon((Bitmap) null);
                 } else {
-                    Context context = null;
-                    if (builder instanceof NotificationCompatBuilder) {
-                        context = ((NotificationCompatBuilder) builder).getContext();
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        Context context = null;
+                        if (builder instanceof NotificationCompatBuilder) {
+                            context = ((NotificationCompatBuilder) builder).getContext();
+                        }
+                        Api23Impl.setBigLargeIcon(style, Api23Impl.toIcon(mBigLargeIcon, context));
+                    } else if (mBigLargeIcon.getType() == IconCompat.TYPE_BITMAP) {
+                        style.bigLargeIcon(mBigLargeIcon.getBitmap());
                     }
-                    style.bigLargeIcon(mBigLargeIcon.toIcon(context));
                 }
             }
             if (mSummaryTextSet) {
@@ -3535,8 +3552,11 @@ public class NotificationCompat {
 
         private static @Nullable IconCompat asIconCompat(@Nullable Parcelable bitmapOrIcon) {
             if (bitmapOrIcon != null) {
-                if (bitmapOrIcon instanceof Icon) {
-                    return IconCompat.createFromIcon((Icon) bitmapOrIcon);
+                if (Build.VERSION.SDK_INT >= 23) {
+                    IconCompat compat = Api23Impl.asIconCompat(bitmapOrIcon);
+                    if (compat != null) {
+                        return compat;
+                    }
                 }
                 if (bitmapOrIcon instanceof Bitmap) {
                     return IconCompat.createWithBitmap((Bitmap) bitmapOrIcon);
@@ -4915,7 +4935,8 @@ public class NotificationCompat {
                 }
             }
             if (mVerificationIcon != null) {
-                extras.putParcelable(EXTRA_VERIFICATION_ICON, mVerificationIcon.toIcon(mBuilder.mContext));
+                extras.putParcelable(EXTRA_VERIFICATION_ICON, Build.VERSION.SDK_INT >= 23
+                        ? Api23Impl.toIcon(mVerificationIcon, mBuilder.mContext) : null);
             }
             extras.putCharSequence(EXTRA_VERIFICATION_TEXT, mVerificationText);
             extras.putParcelable(EXTRA_ANSWER_INTENT, mAnswerIntent);
@@ -5004,7 +5025,11 @@ public class NotificationCompat {
                 if (mPerson != null) {
                     // Adds the caller icon, if available.
                     if (mPerson.getIcon() != null) {
-                        builder.setLargeIcon(mPerson.getIcon().toIcon(mBuilder.mContext));
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            Api23Impl.setLargeIcon(builder, Api23Impl.toIcon(mPerson.getIcon(), mBuilder.mContext));
+                        } else if (mPerson.getIcon().getType() == IconCompat.TYPE_BITMAP) {
+                            builder.setLargeIcon(mPerson.getIcon().getBitmap());
+                        }
                     }
 
                     // Adds the caller person as being relevant to this notification.
@@ -6990,19 +7015,22 @@ public class NotificationCompat {
                 }
 
                 if (mTrackerIcon != null) {
-                    extras.putParcelable(EXTRA_PROGRESS_TRACKER_ICON, mTrackerIcon.toIcon(context));
+                    extras.putParcelable(EXTRA_PROGRESS_TRACKER_ICON, Build.VERSION.SDK_INT >= 23
+                            ? Api23Impl.toIcon(mTrackerIcon, context) : null);
                 } else {
                     extras.remove(EXTRA_PROGRESS_TRACKER_ICON);
                 }
 
                 if (mStartIcon != null) {
-                    extras.putParcelable(EXTRA_PROGRESS_START_ICON, mStartIcon.toIcon(context));
+                    extras.putParcelable(EXTRA_PROGRESS_START_ICON, Build.VERSION.SDK_INT >= 23
+                            ? Api23Impl.toIcon(mStartIcon, context) : null);
                 } else {
                     extras.remove(EXTRA_PROGRESS_START_ICON);
                 }
 
                 if (mEndIcon != null) {
-                    extras.putParcelable(EXTRA_PROGRESS_END_ICON, mEndIcon.toIcon(context));
+                    extras.putParcelable(EXTRA_PROGRESS_END_ICON, Build.VERSION.SDK_INT >= 23
+                            ? Api23Impl.toIcon(mEndIcon, context) : null);
                 } else {
                     extras.remove(EXTRA_PROGRESS_END_ICON);
                 }
@@ -7023,12 +7051,14 @@ public class NotificationCompat {
             mProgressPoints = getProgressPointsFromBundleList(
                     BundleCompat.getParcelableArrayList(
                             extras, EXTRA_PROGRESS_POINTS, Bundle.class));
-            mTrackerIcon = asIconCompat(
-                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_TRACKER_ICON, Icon.class));
-            mStartIcon = asIconCompat(
-                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_START_ICON, Icon.class));
-            mEndIcon = asIconCompat(
-                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_END_ICON, Icon.class));
+            if (Build.VERSION.SDK_INT >= 23) {
+                mTrackerIcon = asIconCompat(
+                       Api23Impl.getIconParcelable(extras, EXTRA_PROGRESS_TRACKER_ICON));
+                mStartIcon = asIconCompat(
+                       Api23Impl.getIconParcelable(extras, EXTRA_PROGRESS_START_ICON));
+                mEndIcon = asIconCompat(
+                       Api23Impl.getIconParcelable(extras, EXTRA_PROGRESS_END_ICON));
+            }
         }
 
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -7047,8 +7077,11 @@ public class NotificationCompat {
 
         private static @Nullable IconCompat asIconCompat(@Nullable Parcelable bitmapOrIcon) {
             if (bitmapOrIcon != null) {
-                if (bitmapOrIcon instanceof Icon) {
-                    return IconCompat.createFromIcon((Icon) bitmapOrIcon);
+                if (Build.VERSION.SDK_INT >= 23) {
+                    IconCompat compat = Api23Impl.asIconCompat(bitmapOrIcon);
+                    if (compat != null) {
+                        return compat;
+                    }
                 }
                 if (bitmapOrIcon instanceof Bitmap) {
                     return IconCompat.createWithBitmap((Bitmap) bitmapOrIcon);
@@ -8123,11 +8156,16 @@ public class NotificationCompat {
             @RestrictTo(LIBRARY_GROUP_PREFIX)
             public static @NonNull Builder fromAndroidAction(Notification.@NonNull Action action) {
                 final Builder builder;
-                if (action.getIcon() != null) {
-                    IconCompat iconCompat = IconCompat.createFromIconOrNullIfZeroResId(
-                            action.getIcon());
-                    builder = new NotificationCompat.Action.Builder(iconCompat, action.title,
-                            action.actionIntent);
+                if (Build.VERSION.SDK_INT >= 23) {
+                    Icon icon = Api23Impl.getIcon(action);
+                    if (icon != null) {
+                        IconCompat iconCompat = IconCompat.createFromIconOrNullIfZeroResId(icon);
+                        builder = new NotificationCompat.Action.Builder(iconCompat, action.title,
+                                action.actionIntent);
+                    } else {
+                        builder = new NotificationCompat.Action.Builder(action.icon, action.title,
+                                action.actionIntent);
+                    }
                 } else {
                     builder = new NotificationCompat.Action.Builder(action.icon, action.title,
                             action.actionIntent);
@@ -9085,9 +9123,16 @@ public class NotificationCompat {
 
         private static Notification.Action getActionFromActionCompat(Action actionCompat) {
             IconCompat iconCompat = actionCompat.getIconCompat();
-            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
-                    iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
-                    actionCompat.getActionIntent());
+            Notification.Action.Builder actionBuilder;
+            if (Build.VERSION.SDK_INT >= 23) {
+                actionBuilder = Api23Impl.createActionBuilder(
+                        iconCompat == null ? null : Api23Impl.toIcon(iconCompat), actionCompat.getTitle(),
+                        actionCompat.getActionIntent());
+            } else {
+                actionBuilder = new Notification.Action.Builder(
+                        actionCompat.getIcon(), actionCompat.getTitle(),
+                        actionCompat.getActionIntent());
+            }
             Bundle actionExtras;
             if (actionCompat.getExtras() != null) {
                 actionExtras = new Bundle(actionCompat.getExtras());
@@ -11725,6 +11770,46 @@ public class NotificationCompat {
 
         static Icon getIcon(Notification.Action action) {
             return action.getIcon();
+        }
+
+        static Icon getSmallIcon(Notification notification) {
+            return notification.getSmallIcon();
+        }
+
+        static Icon getLargeIcon(Notification notification) {
+            return notification.getLargeIcon();
+        }
+
+        static Icon toIcon(IconCompat iconCompat, Context context) {
+            return iconCompat.toIcon(context);
+        }
+
+        static Icon toIcon(IconCompat iconCompat) {
+            return iconCompat.toIcon();
+        }
+
+        static void setBigLargeIcon(Notification.BigPictureStyle style, Icon icon) {
+            style.bigLargeIcon(icon);
+        }
+
+        static void setLargeIcon(Notification.Builder builder, Icon icon) {
+            builder.setLargeIcon(icon);
+        }
+
+        static Icon getIconParcelable(Bundle extras, String key) {
+            return BundleCompat.getParcelable(extras, key, Icon.class);
+        }
+
+        static Notification.Action.Builder createActionBuilder(Icon icon, CharSequence title, PendingIntent intent) {
+            return new Notification.Action.Builder(icon, title, intent);
+        }
+
+        @DoNotInline
+        static IconCompat asIconCompat(Object bitmapOrIcon) {
+            if (bitmapOrIcon instanceof Icon) {
+                return IconCompat.createFromIcon((Icon) bitmapOrIcon);
+            }
+            return null;
         }
     }
 }

@@ -3023,7 +3023,10 @@ public class ViewCompat {
      * @return WindowInsetsCompat from the top of the view hierarchy or null if View is detached
      */
     public static @Nullable WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
-        return Api23Impl.getRootWindowInsets(view);
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.getRootWindowInsets(view);
+        }
+        return null;
     }
 
     /**
